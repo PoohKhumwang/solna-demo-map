@@ -465,9 +465,9 @@ main { flex: 1; }
         <h2 id="tools-title" class="t-h4">Map tools</h2>
         <dl class="tools">
           <dt>Top left</dt>
-          <dd>Zoom, home, compass, my location, full screen, then: measure distance, measure area, sketch, elevation profile, print / export, coordinates (incl. SWEREF 99 TM).</dd>
+          <dd>Zoom, home, compass, my location, full screen, then: measure distance, measure area, sketch, elevation profile.</dd>
           <dt>Top right</dt>
-          <dd>Search (places, addresses, manhole and pipe ids), layers (legend, opacity, zoom to), legend, basemaps, bookmarks.</dd>
+          <dd>Search (places, addresses, manhole and pipe ids), layers (legend, opacity, zoom to), legend, basemaps, bookmarks, print / export, coordinates (incl. SWEREF 99 TM).</dd>
           <dt>Layers</dt>
           <dd>Demo data: work area, pipes, manholes and a 5 m pipe buffer (off by default). Reference overlays: hillshade, roads, place names (off by default). My sketches.</dd>
           <dt>Basemaps</dt>
@@ -742,9 +742,7 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
       [distance, 'Measure distance', 'measure-line'],
       [areaMeasure, 'Measure area', 'measure-area'],
       [sketch, 'Sketch', 'pencil'],
-      [profile, 'Elevation profile', 'altitude'],
-      [print, 'Print / export', 'print'],
-      [coords, 'Coordinates (SWEREF 99 TM and more)', 'coordinate-system']
+      [profile, 'Elevation profile', 'altitude']
     ].map(function (t) {
       var exp = expand(t[0], t[1], t[2], 'tl');
       if (t[0] === distance || t[0] === areaMeasure) {
@@ -755,11 +753,12 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
       return exp;
     });
     view.ui.add(tools, 'top-left');
+    view.ui.add([expand(print, 'Print / export', 'print', 'tr'), expand(coords, 'Coordinates (SWEREF 99 TM and more)', 'coordinate-system', 'tr')], 'top-right');
 
-    view.ui.add(new ScaleBar({ view: view, unit: 'dual' }), 'bottom-left');
+    view.ui.add(new ScaleBar({ view: view, unit: 'dual' }), 'bottom-right');
 
     // ---- Attribute table under the map ------------------------------------
-    var table = new FeatureTable({ view: view, layer: wells, container: 'tableDiv', highlightEnabled: true });
+    var table = new FeatureTable({ view: view, layer: wells, container: 'tableDiv', highlightEnabled: true, hiddenFields: ['__OBJECTID'] });
     document.querySelectorAll('[data-table]').forEach(function (tab) {
       tab.addEventListener('click', function () {
         document.querySelectorAll('[data-table]').forEach(function (t) { t.setAttribute('aria-selected', String(t === tab)); });
