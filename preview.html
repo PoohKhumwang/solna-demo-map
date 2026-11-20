@@ -642,7 +642,6 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
     });
 
     // ---- Widgets ----------------------------------------------------------
-    var wide = window.innerWidth > 900;
     function expand(content, tooltip, icon, group, opts) {
       return new Expand(Object.assign({ view: view, content: content, expandTooltip: tooltip, expandIcon: icon, group: group }, opts || {}));
     }
@@ -706,7 +705,7 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
 
     view.ui.add([
       expand(layerList, 'Layers', 'layers', 'tr'),
-      expand(new Legend({ view: view }), 'Legend', 'legend', 'tr', { expanded: wide }),
+      expand(new Legend({ view: view }), 'Legend', 'legend', 'tr'),
       expand(new BasemapGallery({ view: view, source: new LocalBasemapsSource({ basemaps: basemaps }) }), 'Basemaps', 'basemap', 'tr'),
       expand(bookmarks, 'Bookmarks', 'bookmark', 'tr')
     ], 'top-right');
