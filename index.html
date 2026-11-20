@@ -724,14 +724,14 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
         spatialReference: new SpatialReference({ wkid: 3006 }),
         reverseConvert: function (string) {
           var parts = string.replace(/[NE]/g, '').split(',');
-          return new Point({ y: parseFloat(parts[0]), x: parseFloat(parts[1]), spatialReference: { wkid: 3006 } });
+          return new Point({ x: parseFloat(parts[0]), y: parseFloat(parts[1]), spatialReference: { wkid: 3006 } });
         }
       },
       coordinateSegments: [
-        { alias: 'N', description: 'northing', searchPattern: numberSearchPattern },
-        { alias: 'E', description: 'easting', searchPattern: numberSearchPattern }
+        { alias: 'E', description: 'easting', searchPattern: numberSearchPattern },
+        { alias: 'N', description: 'northing', searchPattern: numberSearchPattern }
       ],
-      defaultPattern: 'N, E'
+      defaultPattern: 'E, N'
     });
     var coords = new CoordinateConversion({ view: view });
     coords.formats.add(sweref);
