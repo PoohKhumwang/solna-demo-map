@@ -400,7 +400,7 @@ main { flex: 1; }
 .panel { background: var(--white); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-5); min-width: 0; }
 .panel + .panel { margin-top: var(--space-5); }
 .panel h2 { margin-bottom: var(--space-3); }
-#viewDiv { height: 600px; width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; background: var(--grey-200); }
+#viewDiv { height: 680px; width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; background: var(--grey-200); }
 .map-msg { padding: var(--space-6); color: var(--color-text-muted); max-width: var(--measure); }
 .issues { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
 .issue { width: 100%; display: grid; grid-template-columns: 3.2em 4.8em minmax(0, 1fr); align-items: center; gap: var(--space-2); text-align: left; font: inherit; font-size: var(--fs-14); color: var(--color-text); background: var(--white); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-2) var(--space-3); cursor: pointer; transition: border-color var(--dur-fast); }
@@ -411,7 +411,13 @@ main { flex: 1; }
 .pill--off { background: var(--color-error-bg); color: var(--color-error); }
 .note { font-size: var(--fs-14); color: var(--color-text-muted); }
 .note + .note { margin-top: var(--space-2); }
-@media (max-width: 900px) { .app-layout { grid-template-columns: minmax(0, 1fr); } #viewDiv { height: 460px; } }
+.table-head { margin-top: var(--space-5); }
+#tableDiv { height: 300px; margin-top: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+.tools { margin: 0; }
+.tools dt { font-size: var(--fs-14); font-weight: var(--fw-semibold); color: var(--moss-800); margin-top: var(--space-3); }
+.tools dt:first-child { margin-top: 0; }
+.tools dd { margin: 0; font-size: var(--fs-14); color: var(--color-text-muted); }
+@media (max-width: 900px) { .app-layout { grid-template-columns: minmax(0, 1fr); } #viewDiv { height: 520px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
@@ -428,13 +434,19 @@ main { flex: 1; }
   <div class="app-head stack">
     <p class="t-eyebrow">Yesper tutorial · GIS demo</p>
     <h1 class="t-h2">Solna demo geodata on an ArcGIS map</h1>
-    <p class="t-muted">The cleaned demo GeoPackage drawn with the ArcGIS Maps SDK for JavaScript. Click a feature for its attributes, or pick an issue in the list to zoom to it. Use the layer list and legend buttons on the map.</p>
+    <p class="t-muted">The cleaned demo GeoPackage drawn with the ArcGIS Maps SDK for JavaScript. Click a feature for its attributes, pick an issue in the list to zoom to it, or use the tools on the map: search, layers, basemaps, measuring, sketching, elevation profile, print and coordinates.</p>
   </div>
 
   <div class="app-layout">
     <section class="panel" aria-labelledby="map-title">
       <h2 id="map-title" class="t-h4">Map</h2>
       <div id="viewDiv" role="region" aria-label="ArcGIS map of manholes, pipes and work area"></div>
+      <h2 id="table-title" class="t-h4 table-head">Attribute table</h2>
+      <div class="tabs" role="tablist" aria-labelledby="table-title">
+        <button type="button" role="tab" aria-selected="true" data-table="wells">Manholes</button>
+        <button type="button" role="tab" aria-selected="false" data-table="pipes">Pipes</button>
+      </div>
+      <div id="tableDiv"></div>
     </section>
 
     <div>
@@ -449,10 +461,25 @@ main { flex: 1; }
           <li><button type="button" class="issue" data-id="L04" data-layer="pipes"><span class="issue__id">L04</span><span class="issue__layer">Pipe</span><span class="pill">material missing</span></button></li>
         </ul>
       </section>
+      <section class="panel" aria-labelledby="tools-title">
+        <h2 id="tools-title" class="t-h4">Map tools</h2>
+        <dl class="tools">
+          <dt>Top left</dt>
+          <dd>Zoom, home, compass, my location, full screen, then: measure distance, measure area, sketch, elevation profile.</dd>
+          <dt>Top right</dt>
+          <dd>Search (places, addresses, manhole and pipe ids), layers (legend, opacity, zoom to), legend, basemaps, bookmarks, print / export, coordinates (incl. SWEREF 99 TM).</dd>
+          <dt>Layers</dt>
+          <dd>Demo data: work area, pipes, manholes and a 5 m pipe buffer (off by default). Reference overlays: hillshade, roads, place names (off by default). My sketches.</dd>
+          <dt>Basemaps</dt>
+          <dd>Topographic, streets, imagery, imagery with labels, light and dark gray canvas, OpenStreetMap.</dd>
+          <dt>Under the map</dt>
+          <dd>Attribute table for manholes and pipes. Select a row to highlight the feature.</dd>
+        </dl>
+      </section>
       <section class="panel" aria-labelledby="about-title">
         <h2 id="about-title" class="t-h4">About the data</h2>
         <p class="note">Made-up demo data for the Yesper tutorial, from demo_geodata_solna_clean.gpkg: 13 manholes, 6 pipes (656.6 m) and one work area. Stored in SWEREF 99 TM (EPSG:3006), embedded here as GeoJSON in WGS84.</p>
-        <p class="note">Basemaps: Esri World Topographic Map and World Imagery (switch with the button at the bottom right). The page needs an internet connection to load the SDK and the map tiles.</p>
+        <p class="note">Basemaps, overlays, elevation, geocoding and printing use Esri's public services; OpenStreetMap tiles © OpenStreetMap contributors. The page needs an internet connection to load the SDK and the map tiles.</p>
       </section>
     </div>
   </div>
@@ -497,16 +524,34 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
   }
 
   require([
-    'esri/Map', 'esri/Basemap', 'esri/views/MapView', 'esri/layers/TileLayer', 'esri/layers/GeoJSONLayer', 'esri/widgets/BasemapToggle',
-    'esri/widgets/LayerList', 'esri/widgets/Legend', 'esri/widgets/Expand', 'esri/widgets/ScaleBar', 'esri/widgets/Home'
-  ], function (Map, Basemap, MapView, TileLayer, GeoJSONLayer, BasemapToggle, LayerList, Legend, Expand, ScaleBar, Home) {
+    'esri/Map', 'esri/Basemap', 'esri/views/MapView', 'esri/Graphic', 'esri/core/reactiveUtils',
+    'esri/layers/TileLayer', 'esri/layers/OpenStreetMapLayer', 'esri/layers/GeoJSONLayer', 'esri/layers/FeatureLayer',
+    'esri/layers/GraphicsLayer', 'esri/layers/GroupLayer', 'esri/geometry/geometryEngine', 'esri/geometry/SpatialReference',
+    'esri/geometry/Point', 'esri/geometry/Extent', 'esri/webmap/Bookmark',
+    'esri/widgets/Home', 'esri/widgets/Compass', 'esri/widgets/Locate', 'esri/widgets/Fullscreen', 'esri/widgets/Search',
+    'esri/widgets/LayerList', 'esri/widgets/Legend', 'esri/widgets/BasemapGallery', 'esri/widgets/BasemapGallery/support/LocalBasemapsSource',
+    'esri/widgets/Bookmarks', 'esri/widgets/Expand', 'esri/widgets/ScaleBar', 'esri/widgets/DistanceMeasurement2D',
+    'esri/widgets/AreaMeasurement2D', 'esri/widgets/Sketch', 'esri/widgets/ElevationProfile', 'esri/widgets/Print',
+    'esri/widgets/CoordinateConversion', 'esri/widgets/CoordinateConversion/support/Format', 'esri/widgets/CoordinateConversion/support/Conversion', 'esri/widgets/FeatureTable'
+  ], function (Map, Basemap, MapView, Graphic, reactiveUtils,
+    TileLayer, OpenStreetMapLayer, GeoJSONLayer, FeatureLayer,
+    GraphicsLayer, GroupLayer, geometryEngine, SpatialReference,
+    Point, Extent, Bookmark,
+    Home, Compass, Locate, Fullscreen, Search,
+    LayerList, Legend, BasemapGallery, LocalBasemapsSource,
+    Bookmarks, Expand, ScaleBar, DistanceMeasurement2D,
+    AreaMeasurement2D, Sketch, ElevationProfile, Print,
+    CoordinateConversion, Format, Conversion, FeatureTable) {
 
     // AFRY palette for the symbology
     var MOSS = '#244C3B', MOSS_DARK = '#0A1A11', TEAL = '#4C727A', YELLOW = '#F3FFAF', ERROR = '#B3261E';
+    var ESRI = 'https://services.arcgisonline.com/ArcGIS/rest/services/';
 
     function blobUrl(fc) { return URL.createObjectURL(new Blob([JSON.stringify(fc)], { type: 'application/json' })); }
     function text(color) { return { type: 'text', color: color, haloColor: 'white', haloSize: 1.5, font: { size: 10, weight: 'bold' } }; }
+    function tiles(path, opts) { return new TileLayer(Object.assign({ url: ESRI + path + '/MapServer' }, opts || {})); }
 
+    // ---- Demo data layers -------------------------------------------------
     var area = new GeoJSONLayer({
       url: blobUrl(DATA.area), title: 'Work area',
       renderer: { type: 'simple', label: 'Work area', symbol: { type: 'simple-fill', color: [36, 76, 59, 0.08], outline: { color: MOSS, width: 2 } } },
@@ -545,13 +590,35 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
       ] }] }
     });
 
-    var ESRI = 'https://services.arcgisonline.com/ArcGIS/rest/services/';
-    var topo = new Basemap({ baseLayers: [new TileLayer({ url: ESRI + 'World_Topo_Map/MapServer' })], title: 'Topographic', thumbnailUrl: ESRI + 'World_Topo_Map/MapServer/tile/0/0/0' });
-    var imagery = new Basemap({ baseLayers: [new TileLayer({ url: ESRI + 'World_Imagery/MapServer' })], title: 'Imagery', thumbnailUrl: ESRI + 'World_Imagery/MapServer/tile/0/0/0' });
+    var dataGroup = new GroupLayer({ title: 'Demo data', visibilityMode: 'independent', layers: [area, pipes, wells] });
+
+    // ---- Reference overlays (Esri public services, off by default) ---------
+    var hillshade = tiles('Elevation/World_Hillshade', { title: 'Hillshade', opacity: 0.35, visible: false });
+    var transport = tiles('Reference/World_Transportation', { title: 'Roads and transport', visible: false });
+    var places = tiles('Reference/World_Boundaries_and_Places', { title: 'Place names and boundaries', visible: false });
+    var refGroup = new GroupLayer({ title: 'Reference overlays', visibilityMode: 'independent', layers: [hillshade, transport, places], visible: true });
+
+    // ---- Your sketches ----------------------------------------------------
+    var sketchLayer = new GraphicsLayer({ title: 'My sketches', listMode: 'show' });
+
+    // ---- Basemaps (raster tiles that load without sign-in) -----------------
+    function bm(id, title, layers, thumbPath, reference) {
+      return new Basemap({ id: id, title: title, baseLayers: layers, referenceLayers: reference || [], thumbnailUrl: thumbPath ? ESRI + thumbPath + '/MapServer/tile/0/0/0' : undefined });
+    }
+    var basemaps = [
+      bm('topo', 'Topographic', [tiles('World_Topo_Map')], 'World_Topo_Map'),
+      bm('streets', 'Streets', [tiles('World_Street_Map')], 'World_Street_Map'),
+      bm('imagery', 'Imagery', [tiles('World_Imagery')], 'World_Imagery'),
+      bm('hybrid', 'Imagery with labels', [tiles('World_Imagery')], 'World_Imagery', [tiles('Reference/World_Boundaries_and_Places'), tiles('Reference/World_Transportation')]),
+      bm('light-gray', 'Light gray canvas', [tiles('Canvas/World_Light_Gray_Base')], 'Canvas/World_Light_Gray_Base', [tiles('Canvas/World_Light_Gray_Reference')]),
+      bm('dark-gray', 'Dark gray canvas', [tiles('Canvas/World_Dark_Gray_Base')], 'Canvas/World_Dark_Gray_Base', [tiles('Canvas/World_Dark_Gray_Reference')]),
+      bm('osm', 'OpenStreetMap', [new OpenStreetMapLayer()], null)
+    ];
 
     var map = new Map({
-      basemap: topo,
-      layers: [area, pipes, wells]
+      basemap: basemaps[0],
+      ground: 'world-elevation',
+      layers: [refGroup, dataGroup, sketchLayer]
     });
 
     var view = new MapView({
@@ -559,12 +626,146 @@ var DATA = {"wells": {"type": "FeatureCollection", "features": [{"type": "Featur
       popup: { dockEnabled: false }
     });
 
-    view.ui.add(new Home({ view: view }), 'top-left');
-    view.ui.add(new Expand({ view: view, content: new LayerList({ view: view }), expandTooltip: 'Layers', group: 'tr' }), 'top-right');
-    view.ui.add(new Expand({ view: view, content: new Legend({ view: view }), expandTooltip: 'Legend', expanded: true, group: 'tr' }), 'top-right');
-    view.ui.add(new BasemapToggle({ view: view, nextBasemap: imagery }), 'bottom-right');
-    view.ui.add(new ScaleBar({ view: view, unit: 'metric' }), 'bottom-left');
+    // ---- Derived layer: 5 m buffer around the pipes -------------------------
+    pipes.queryFeatures({ where: '1=1', returnGeometry: true, outFields: ['id'] }).then(function (res) {
+      var graphics = res.features.map(function (f, i) {
+        return new Graphic({ geometry: geometryEngine.geodesicBuffer(f.geometry, 5, 'meters'), attributes: { ObjectID: i + 1, id: f.attributes.id } });
+      });
+      var buffer = new FeatureLayer({
+        title: 'Pipe buffer (5 m)', source: graphics, objectIdField: 'ObjectID', geometryType: 'polygon',
+        spatialReference: graphics[0].geometry.spatialReference, visible: false,
+        fields: [{ name: 'ObjectID', type: 'oid' }, { name: 'id', type: 'string', alias: 'Pipe' }],
+        renderer: { type: 'simple', label: '5 m from a pipe', symbol: { type: 'simple-fill', color: [95, 142, 153, 0.18], outline: { color: TEAL, width: 1, style: 'short-dash' } } },
+        popupTemplate: { title: 'Buffer around pipe {id}', content: 'Everything within 5 m of pipe {id}.' }
+      });
+      dataGroup.layers.add(buffer, 0);
+    });
 
+    // ---- Widgets ----------------------------------------------------------
+    function expand(content, tooltip, icon, group, opts) {
+      return new Expand(Object.assign({ view: view, content: content, expandTooltip: tooltip, expandIcon: icon, group: group }, opts || {}));
+    }
+
+    // Navigation (top-left)
+    view.ui.add([
+      new Home({ view: view }),
+      new Compass({ view: view }),
+      new Locate({ view: view }),
+      new Fullscreen({ view: view, element: document.getElementById('viewDiv') })
+    ], 'top-left');
+
+    // Search: place names (Esri World Geocoder) plus manhole and pipe ids
+    var search = new Search({
+      view: view, includeDefaultSources: true, allPlaceholder: 'Place, address, B05, L04…',
+      sources: [
+        { layer: wells, searchFields: ['id'], displayField: 'id', exactMatch: false, outFields: ['*'], name: 'Manholes', placeholder: 'e.g. B05', zoomScale: 1000 },
+        { layer: pipes, searchFields: ['id'], displayField: 'id', exactMatch: false, outFields: ['*'], name: 'Pipes', placeholder: 'e.g. L04', zoomScale: 1500 }
+      ]
+    });
+    view.ui.add(search, { position: 'top-right', index: 0 });
+
+    // Layers with legend, opacity and zoom actions
+    var layerList = new LayerList({
+      view: view,
+      listItemCreatedFunction: function (e) {
+        var item = e.item, layer = item.layer;
+        if (layer.type !== 'group') { item.panel = { content: 'legend', open: false }; }
+        var actions = [{ title: 'More opaque', icon: 'chevron-up', id: 'up' }, { title: 'More transparent', icon: 'chevron-down', id: 'down' }];
+        if (layer.type === 'geojson' || layer.type === 'feature' || layer.type === 'graphics' || layer.type === 'group') {
+          actions.unshift({ title: 'Zoom to layer', icon: 'zoom-to-object', id: 'zoom' });
+        }
+        item.actionsSections = [actions];
+      }
+    });
+    layerList.on('trigger-action', function (e) {
+      var layer = e.item.layer, id = e.action.id;
+      if (id === 'up') { layer.opacity = Math.min(1, Math.round((layer.opacity + 0.1) * 10) / 10); }
+      if (id === 'down') { layer.opacity = Math.max(0, Math.round((layer.opacity - 0.1) * 10) / 10); }
+      if (id === 'zoom') {
+        if (layer.type === 'graphics') { if (layer.graphics.length) view.goTo(layer.graphics); return; }
+        if (layer.type === 'group') { zoomToArea(); return; }
+        layer.queryExtent().then(function (r) { if (r.extent) view.goTo(r.extent.expand(1.3)); });
+      }
+    });
+
+    var bookmarks = new Bookmarks({
+      view: view,
+      visibleElements: { addBookmarkButton: true, editBookmarkButton: true },
+      bookmarks: [
+        new Bookmark({ name: 'Work area', viewpoint: { targetGeometry: new Extent({ xmin: 18.0130, ymin: 59.3605, xmax: 18.0280, ymax: 59.3685, spatialReference: { wkid: 4326 } }) } }),
+        new Bookmark({ name: 'B05 – depth missing', viewpoint: { targetGeometry: new Point({ longitude: 18.0234519, latitude: 59.3633816 }), scale: 1500 } }),
+        new Bookmark({ name: 'B10 – negative depth', viewpoint: { targetGeometry: new Point({ longitude: 18.0171537, latitude: 59.3671223 }), scale: 1500 } }),
+        new Bookmark({ name: 'L04 – material missing', viewpoint: { targetGeometry: new Point({ longitude: 18.017465, latitude: 59.3666918 }), scale: 2000 } }),
+        new Bookmark({ name: 'B13 – outside work area', viewpoint: { targetGeometry: new Point({ longitude: 18.9363994, latitude: 59.3670233 }), scale: 5000 } })
+      ]
+    });
+    bookmarks.on('bookmark-select', function (e) {
+      if (e.bookmark.name.indexOf('B13') === 0 && !showB13.checked) { showB13.checked = true; wells.definitionExpression = null; }
+    });
+
+    view.ui.add([
+      expand(layerList, 'Layers', 'layers', 'tr'),
+      expand(new Legend({ view: view }), 'Legend', 'legend', 'tr'),
+      expand(new BasemapGallery({ view: view, source: new LocalBasemapsSource({ basemaps: basemaps }) }), 'Basemaps', 'basemap', 'tr'),
+      expand(bookmarks, 'Bookmarks', 'bookmark', 'tr')
+    ], 'top-right');
+
+    // Tools (top-left, below navigation). Measurements clear when closed.
+    var distance = new DistanceMeasurement2D({ view: view, unit: 'metric' });
+    var areaMeasure = new AreaMeasurement2D({ view: view, unit: 'metric' });
+    var sketch = new Sketch({ view: view, layer: sketchLayer, creationMode: 'update' });
+    var profile = new ElevationProfile({ view: view, profiles: [{ type: 'ground', title: 'Ground (Esri World Elevation)' }], unit: 'metric' });
+    var print = new Print({ view: view, printServiceUrl: 'https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task' });
+
+    var numberSearchPattern = /-?\d+[\.]?\d*/;
+    var sweref = new Format({
+      name: 'SWEREF 99 TM',
+      conversionInfo: {
+        spatialReference: new SpatialReference({ wkid: 3006 }),
+        reverseConvert: function (string) {
+          var parts = string.replace(/[NE]/g, '').split(',');
+          return new Point({ y: parseFloat(parts[0]), x: parseFloat(parts[1]), spatialReference: { wkid: 3006 } });
+        }
+      },
+      coordinateSegments: [
+        { alias: 'N', description: 'northing', searchPattern: numberSearchPattern },
+        { alias: 'E', description: 'easting', searchPattern: numberSearchPattern }
+      ],
+      defaultPattern: 'N, E'
+    });
+    var coords = new CoordinateConversion({ view: view });
+    coords.formats.add(sweref);
+    coords.conversions.splice(0, 0, new Conversion({ format: sweref }));
+
+    var tools = [
+      [distance, 'Measure distance', 'measure-line'],
+      [areaMeasure, 'Measure area', 'measure-area'],
+      [sketch, 'Sketch', 'pencil'],
+      [profile, 'Elevation profile', 'altitude']
+    ].map(function (t) {
+      var exp = expand(t[0], t[1], t[2], 'tl');
+      if (t[0] === distance || t[0] === areaMeasure) {
+        reactiveUtils.watch(function () { return exp.expanded; }, function (open) {
+          if (open) { t[0].viewModel.start(); } else { t[0].viewModel.clear(); }
+        });
+      }
+      return exp;
+    });
+    view.ui.add(tools, 'top-left');
+    view.ui.add([expand(print, 'Print / export', 'print', 'tr'), expand(coords, 'Coordinates (SWEREF 99 TM and more)', 'coordinate-system', 'tr')], 'top-right');
+
+    view.ui.add(new ScaleBar({ view: view, unit: 'dual' }), 'bottom-right');
+
+    // ---- Attribute table under the map ------------------------------------
+    var table = new FeatureTable({ view: view, layer: wells, container: 'tableDiv', highlightEnabled: true, hiddenFields: ['__OBJECTID'] });
+    document.querySelectorAll('[data-table]').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('[data-table]').forEach(function (t) { t.setAttribute('aria-selected', String(t === tab)); });
+        table.layer = tab.getAttribute('data-table') === 'pipes' ? pipes : wells;
+      });
+    });
+
+    // ---- Zoom, B13 toggle and issue list ------------------------------------
     function zoomToArea() { return area.queryExtent().then(function (r) { return view.goTo(r.extent.expand(1.3)); }); }
     view.when(zoomToArea);
 
